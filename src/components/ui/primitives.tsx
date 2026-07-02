@@ -11,8 +11,15 @@ export function Badge({
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${className}`}
-      style={{ backgroundColor: color }}
+      className={
+        "inline-flex items-center rounded-full border px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-white shadow-[0_12px_32px_rgba(0,0,0,0.18)] " +
+        className
+      }
+      style={{
+        backgroundColor: color + "E6",
+        borderColor: color + "70",
+        boxShadow: "0 12px 32px " + color + "25",
+      }}
     >
       {children}
     </span>
@@ -20,11 +27,7 @@ export function Badge({
 }
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={"premium-card rounded-[1.55rem] p-5 " + className}>{children}</div>;
 }
 
 export function Button({
@@ -41,9 +44,9 @@ export function Button({
   className?: string;
 }) {
   const variants = {
-    primary: "bg-blue-600 hover:bg-blue-700 text-white",
-    secondary: "bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-100",
-    danger: "bg-red-600 hover:bg-red-700 text-white",
+    primary: "btn-premium",
+    secondary: "btn-secondary",
+    danger: "btn-danger",
   };
 
   return (
@@ -51,7 +54,12 @@ export function Button({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={
+        "magnetic rounded-xl px-4 py-2.5 text-sm font-extrabold transition disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 " +
+        variants[variant] +
+        " " +
+        className
+      }
     >
       {children}
     </button>

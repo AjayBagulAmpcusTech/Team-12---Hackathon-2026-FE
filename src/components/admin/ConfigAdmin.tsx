@@ -5,6 +5,8 @@ import type { TriageConfig } from "@/lib/types";
 import { fetchConfig, saveConfig } from "@/lib/api";
 import { Button, Card } from "@/components/ui/primitives";
 
+const inputClass = "input-premium rounded-xl px-3 py-2 text-sm";
+
 export function ConfigAdmin() {
   const [config, setConfig] = useState<TriageConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,16 +35,17 @@ export function ConfigAdmin() {
     }
   }
 
-  if (loading) return <p className="text-zinc-500">Loading configuration...</p>;
-  if (!config) return <p className="text-red-600">{message || "Failed to load config"}</p>;
+  if (loading) return <p className="mx-auto max-w-6xl text-secondary">Loading configuration...</p>;
+  if (!config) return <p className="mx-auto max-w-6xl" style={{ color: "var(--accent-4)" }}>{message || "Failed to load config"}</p>;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Triage configuration</h1>
-          <p className="text-sm text-zinc-500">
-            Non-engineers can define categories, urgency levels, and routing rules here.
+          <p className="eyebrow">Control plane</p>
+          <h1 className="hero-title mt-3 text-4xl font-semibold">Triage configuration</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">
+            Tune categories, urgency levels, and routing rules without touching the model workflow.
           </p>
         </div>
         <Button onClick={handleSave} disabled={saving}>
@@ -51,18 +54,18 @@ export function ConfigAdmin() {
       </div>
 
       {message && (
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="glass-panel rounded-2xl p-4 text-sm font-semibold" style={{ color: "var(--accent)" }}>
           {message}
         </div>
       )}
 
-      <Card>
-        <h2 className="mb-4 text-lg font-semibold">Categories</h2>
+      <Card className="stagger-in stagger-3">
+        <SectionHeader title="Categories" subtitle="Define the language reviewers see when incidents are classified." />
         <div className="space-y-3">
           {config.categories.map((cat, index) => (
-            <div key={cat.id} className="grid gap-2 md:grid-cols-3">
+            <div key={cat.id} className="grid gap-2 md:grid-cols-[0.9fr_0.7fr_1.4fr]">
               <input
-                className="rounded border px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+                className={inputClass}
                 value={cat.label}
                 onChange={(e) => {
                   const categories = [...config.categories];
@@ -70,13 +73,9 @@ export function ConfigAdmin() {
                   setConfig({ ...config, categories });
                 }}
               />
+              <input className={inputClass + " font-mono text-muted"} value={cat.id} readOnly />
               <input
-                className="rounded border px-2 py-1 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-950"
-                value={cat.id}
-                readOnly
-              />
-              <input
-                className="rounded border px-2 py-1 text-sm md:col-span-1 dark:border-zinc-700 dark:bg-zinc-950"
+                className={inputClass}
                 value={cat.description}
                 onChange={(e) => {
                   const categories = [...config.categories];
@@ -89,13 +88,13 @@ export function ConfigAdmin() {
         </div>
       </Card>
 
-      <Card>
-        <h2 className="mb-4 text-lg font-semibold">Urgency levels</h2>
+      <Card className="stagger-in stagger-4">
+        <SectionHeader title="Urgency levels" subtitle="Shape SLA expectations and the color language of the queue." />
         <div className="space-y-3">
           {config.urgency_levels.map((level, index) => (
-            <div key={level.id} className="grid gap-2 md:grid-cols-4">
+            <div key={level.id} className="grid gap-2 md:grid-cols-[1fr_0.65fr_0.5fr_0.65fr]">
               <input
-                className="rounded border px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+                className={inputClass}
                 value={level.label}
                 onChange={(e) => {
                   const urgency_levels = [...config.urgency_levels];
@@ -105,7 +104,7 @@ export function ConfigAdmin() {
               />
               <input
                 type="number"
-                className="rounded border px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+                className={inputClass}
                 value={level.sla_minutes}
                 onChange={(e) => {
                   const urgency_levels = [...config.urgency_levels];
@@ -115,7 +114,7 @@ export function ConfigAdmin() {
               />
               <input
                 type="color"
-                className="h-9 w-full rounded border dark:border-zinc-700"
+                className="input-premium h-10 w-full rounded-xl p-1"
                 value={level.color}
                 onChange={(e) => {
                   const urgency_levels = [...config.urgency_levels];
@@ -123,32 +122,40 @@ export function ConfigAdmin() {
                   setConfig({ ...config, urgency_levels });
                 }}
               />
-              <span className="self-center font-mono text-xs text-zinc-500">{level.id}</span>
+              <span className="surface-inset self-center rounded-xl px-3 py-2 font-mono text-xs text-muted">
+                {level.id}
+              </span>
             </div>
           ))}
         </div>
       </Card>
 
-      <Card>
-        <h2 className="mb-4 text-lg font-semibold">Routing rules</h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Evaluated in priority order. Security-sensitive incidents always route to security on-call.
-        </p>
+      <Card className="stagger-in stagger-5">
+        <SectionHeader title="Routing rules" subtitle="Evaluated in priority order; security-sensitive incidents always route to security on-call." />
         <div className="space-y-2">
           {config.routing_rules.map((rule, index) => (
             <div
               key={rule.id ?? index}
-              className="grid gap-2 rounded-lg border border-zinc-100 p-3 text-sm dark:border-zinc-800 md:grid-cols-5"
+              className="surface-inset grid gap-2 rounded-2xl p-3 text-sm text-secondary md:grid-cols-5"
             >
-              <span>Priority {rule.priority}</span>
-              <span className="font-mono">{rule.condition_type}</span>
-              <span>{rule.condition_value || "—"}</span>
-              <span>→ {rule.destination_id}</span>
-              <span>{rule.override_urgency ? `urgency: ${rule.override_urgency}` : ""}</span>
+              <span className="font-extrabold text-primary">Priority {rule.priority}</span>
+              <span className="font-mono text-muted">{rule.condition_type}</span>
+              <span>{rule.condition_value || "-"}</span>
+              <span style={{ color: "var(--accent)" }}>to {rule.destination_id}</span>
+              <span>{rule.override_urgency ? "urgency: " + rule.override_urgency : ""}</span>
             </div>
           ))}
         </div>
       </Card>
+    </div>
+  );
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="mb-5">
+      <h2 className="text-xl font-semibold tracking-tight text-primary">{title}</h2>
+      <p className="mt-1 text-sm text-secondary">{subtitle}</p>
     </div>
   );
 }

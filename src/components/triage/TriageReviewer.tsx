@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/primitives";
 
 type Filter = "all" | "security" | "critical";
 
+const filters: Filter[] = ["all", "security", "critical"];
+
 export function TriageReviewer() {
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -32,22 +34,49 @@ export function TriageReviewer() {
     return sortedResults;
   }, [sortedResults, filter]);
 
+  const criticalCount = sortedResults.filter((r) => r.urgency === "critical").length;
+  const completedCount = sortedResults.length;
+  const progressWidth = total ? String((progress / total) * 100) + "%" : "0%";
+
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
-      <section className="space-y-4">
-        <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-2 text-lg font-semibold">Incident batch input</h2>
-          <p className="mb-4 text-sm text-zinc-500">
-            Paste one or more incidents separated by blank lines or <code>---</code>.
-          </p>
+    <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <section className="space-y-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <MetricCard label="Detected" value={incidents.length} tone="accent" delay="stagger-3" />
+          <MetricCard label="Reviewed" value={completedCount} tone="success" delay="stagger-4" />
+          <MetricCard label="Critical" value={criticalCount} tone="danger" delay="stagger-5" />
+        </div>
+
+        <div className="glass-panel stagger-in stagger-4 relative overflow-hidden rounded-[1.75rem] p-5 sm:p-6">
+          <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent" />
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="eyebrow">Batch Intake</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-primary">
+                Incident intelligence queue
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-secondary">
+                Paste incidents separated by blank lines or triple dashes. The copilot streams routing, urgency, and security decisions as each item resolves.
+              </p>
+            </div>
+            <div className="surface-inset rounded-2xl px-3 py-2 text-right">
+              <p className="text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-muted">Stream</p>
+              <p className="mt-1 flex items-center justify-end gap-2 text-sm font-extrabold text-primary">
+                <span className="status-dot" />
+                {isStreaming ? String(progress) + "/" + String(total) + " active" : "Ready"}
+              </p>
+            </div>
+          </div>
+
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={16}
             placeholder="Paste incident descriptions here..."
-            className="w-full rounded-lg border border-zinc-300 bg-white p-3 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            className="input-premium mt-5 min-h-[24rem] w-full resize-y rounded-2xl p-4 font-mono text-sm leading-6"
           />
-          <div className="mt-3 flex flex-wrap gap-2">
+
+          <div className="mt-4 flex flex-wrap gap-3">
             <Button onClick={() => setInput(SAMPLE_INCIDENTS)} variant="secondary">
               Load sample batch
             </Button>
@@ -55,72 +84,112 @@ export function TriageReviewer() {
               onClick={() => startTriage(incidents)}
               disabled={!incidents.length || isStreaming}
             >
-              {isStreaming ? "Triaging..." : `Triage ${incidents.length || 0} incident(s)`}
+              {isStreaming ? "Triaging..." : "Triage " + String(incidents.length || 0) + " incident(s)"}
             </Button>
             <Button onClick={reset} variant="secondary" disabled={isStreaming}>
               Clear results
             </Button>
           </div>
-          {incidents.length > 0 && (
-            <p className="mt-2 text-xs text-zinc-500">Detected {incidents.length} incident(s) in input.</p>
+        </div>
+      </section>
+
+      <section className="space-y-5">
+        <div className="glass-panel stagger-in stagger-4 rounded-[1.75rem] p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="eyebrow">Live Review</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-primary">Triage results</h2>
+              <p className="mt-1 text-sm text-secondary">
+                {isStreaming
+                  ? "Streaming " + String(progress) + "/" + String(total)
+                  : filteredResults.length
+                    ? String(filteredResults.length) + " result" + (filteredResults.length === 1 ? "" : "s") + " shown"
+                    : "Results will appear here as they stream in"}
+                {securityCount > 0 && (
+                  <span className="ml-2 font-extrabold" style={{ color: "var(--accent-4)" }}>
+                    / {securityCount} security flag{securityCount === 1 ? "" : "s"}
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="surface-inset flex rounded-2xl p-1">
+              {filters.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  className={
+                    "magnetic rounded-xl px-3 py-2 text-xs font-extrabold uppercase tracking-[0.14em] " +
+                    (filter === f ? "" : "text-secondary hover:text-primary")
+                  }
+                  style={
+                    filter === f
+                      ? { background: "var(--text)", color: "var(--text-inverse)", boxShadow: "0 10px 30px var(--shadow-color)" }
+                      : undefined
+                  }
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <div className="mt-5 rounded-2xl border p-4 text-sm" style={{ borderColor: "rgba(var(--accent-4-rgb), 0.3)", background: "rgba(var(--accent-4-rgb), 0.1)", color: "var(--accent-4)" }}>
+              {error}
+            </div>
+          )}
+
+          <div className="progress-bar mt-5">
+            <div className="progress-bar__fill" style={{ width: progressWidth }} />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {filteredResults.length ? (
+            filteredResults.map((result, index) => (
+              <div className="stagger-in" style={{ animationDelay: String(120 + index * 80) + "ms" }} key={result.incident_id}>
+                <IncidentCard result={result} />
+              </div>
+            ))
+          ) : (
+            <div className="glass-panel stagger-in stagger-5 rounded-[1.75rem] border-dashed p-8 text-center">
+              <div className="float-slow mx-auto mb-4 h-16 w-16 rounded-2xl surface-inset shadow-lg" />
+              <h3 className="text-lg font-semibold text-primary">Awaiting incident signal</h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-secondary">
+                Load the sample batch or paste your own incidents to begin streaming analysis.
+              </p>
+            </div>
           )}
         </div>
       </section>
+    </div>
+  );
+}
 
-      <section className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Triage results</h2>
-            <p className="text-sm text-zinc-500">
-              {isStreaming
-                ? `Streaming ${progress}/${total}...`
-                : filteredResults.length
-                  ? `${filteredResults.length} shown`
-                  : "Results will appear here as they stream in"}
-              {securityCount > 0 && (
-                <span className="ml-2 font-medium text-red-600">· {securityCount} security flag(s)</span>
-              )}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {(["all", "security", "critical"] as Filter[]).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setFilter(f)}
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  filter === f
-                    ? "bg-blue-600 text-white"
-                    : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
+function MetricCard({
+  label,
+  value,
+  tone,
+  delay,
+}: {
+  label: string;
+  value: number;
+  tone: "accent" | "success" | "danger";
+  delay: string;
+}) {
+  const colorVar = tone === "accent" ? "--accent-rgb" : tone === "success" ? "--accent-3-rgb" : "--accent-4-rgb";
+  const color = tone === "accent" ? "var(--accent)" : tone === "success" ? "var(--accent-3)" : "var(--accent-4)";
 
-        {error && (
-          <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
-            {error}
-          </div>
-        )}
-
-        {isStreaming && (
-          <div className="h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-            <div
-              className="h-full bg-blue-600 transition-all duration-300"
-              style={{ width: total ? `${(progress / total) * 100}%` : "0%" }}
-            />
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {filteredResults.map((result) => (
-            <IncidentCard key={result.incident_id} result={result} />
-          ))}
-        </div>
-      </section>
+  return (
+    <div
+      className={"glass-panel stagger-in magnetic rounded-2xl p-4 " + delay}
+      style={{ boxShadow: "0 18px 60px rgba(var(" + colorVar + "), 0.13)" }}
+    >
+      <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.18em] text-muted">{label}</p>
+      <p className="mt-3 text-3xl font-semibold tracking-tight" style={{ color }}>
+        {value}
+      </p>
     </div>
   );
 }

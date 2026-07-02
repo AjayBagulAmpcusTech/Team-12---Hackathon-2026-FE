@@ -17,6 +17,20 @@ export const metadata: Metadata = {
   description: "AI-powered incident classification, security flagging, and routing",
 };
 
+const themeScript = [
+  "(() => {",
+  "  try {",
+  "    const stored = localStorage.getItem('incident-copilot-theme');",
+  "    const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');",
+  "    document.documentElement.dataset.theme = theme;",
+  "    document.documentElement.style.colorScheme = theme;",
+  "  } catch {",
+  "    document.documentElement.dataset.theme = 'dark';",
+  "    document.documentElement.style.colorScheme = 'dark';",
+  "  }",
+  "})();",
+].join("\n");
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,8 +39,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={geistSans.variable + " " + geistMono.variable + " h-full antialiased"}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
