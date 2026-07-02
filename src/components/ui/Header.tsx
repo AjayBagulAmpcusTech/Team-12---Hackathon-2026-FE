@@ -13,7 +13,8 @@ export function Header() {
   const isAdmin = pathname === "/admin";
 
   return (
-    <header className="stagger-in stagger-1 relative z-50 mx-auto w-full max-w-[1600px] flex flex-col md:flex-row shrink-0 items-center justify-between gap-4 md:gap-4 px-4 py-4 sm:px-6 md:px-8 lg:px-12 backdrop-blur-xl border-b border-white/10 glass-panel sticky top-0 md:top-4 md:rounded-b-3xl md:rounded-t-xl mb-4 sm:mb-6 mt-0 md:mt-2 shadow-sm">
+    <div className="w-full px-3 sm:px-6 lg:px-8 sticky top-3 md:top-4 z-50 flex justify-center pointer-events-none">
+      <header className="pointer-events-auto stagger-in stagger-1 w-full max-w-[1600px] flex flex-col md:flex-row shrink-0 items-center justify-between gap-4 md:gap-4 px-4 py-4 md:px-6 lg:px-8 backdrop-blur-xl border border-white/10 glass-panel rounded-2xl lg:rounded-3xl mb-2 sm:mb-6 shadow-sm">
       <div className="flex w-full md:w-auto items-center justify-between">
         <Link href="/" className="group flex items-center gap-3 magnetic">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border font-black shadow-lg" style={{ borderColor: "var(--border-strong)", background: "var(--surface-soft)", color: "var(--accent)" }}>
@@ -66,6 +67,7 @@ export function Header() {
         </nav>
         <ThemeToggle />
       </div>
-    </header>
+      </header>
+    </div>
   );
 }
