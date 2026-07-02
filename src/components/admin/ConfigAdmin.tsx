@@ -35,11 +35,11 @@ export function ConfigAdmin() {
     }
   }
 
-  if (loading) return <p className="mx-auto max-w-6xl text-secondary">Loading configuration...</p>;
-  if (!config) return <p className="mx-auto max-w-6xl" style={{ color: "var(--accent-4)" }}>{message || "Failed to load config"}</p>;
+  if (loading) return <p className="text-secondary">Loading configuration...</p>;
+  if (!config) return <p style={{ color: "var(--accent-4)" }}>{message || "Failed to load config"}</p>;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Control plane</p>

@@ -11,7 +11,7 @@ export function AdminPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="mx-auto flex max-w-6xl flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         <TabButton active={tab === "requests"} onClick={() => setTab("requests")}>
           Request dashboard
         </TabButton>

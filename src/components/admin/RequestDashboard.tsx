@@ -44,12 +44,12 @@ export function RequestDashboard() {
   }, [categoryFilter, loadData]);
 
   if (loading && !stats) {
-    return <p className="mx-auto max-w-6xl text-secondary">Loading request dashboard...</p>;
+    return <p className="text-secondary">Loading request dashboard...</p>;
   }
 
   if (error && !stats) {
     return (
-      <p className="mx-auto max-w-6xl" style={{ color: "var(--accent-4)" }}>
+      <p style={{ color: "var(--accent-4)" }}>
         {error}
       </p>
     );
@@ -59,7 +59,7 @@ export function RequestDashboard() {
   const categoryCounts = new Map(stats?.by_category.map((c) => [c.category_id, c.count]) ?? []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Operations</p>
