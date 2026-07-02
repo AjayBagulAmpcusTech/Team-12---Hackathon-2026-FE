@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConfigAdmin } from "@/components/admin/ConfigAdmin";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function AdminPage() {
@@ -14,7 +14,7 @@ export default function AdminPage() {
         <ThemeToggle />
       </header>
       <div className="stagger-in stagger-2 relative z-10">
-        <ConfigAdmin />
+        <AdminPanel />
       </div>
     </main>
   );

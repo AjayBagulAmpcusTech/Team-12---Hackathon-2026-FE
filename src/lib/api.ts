@@ -1,4 +1,4 @@
-import type { TriageConfig } from "./types";
+import type { TicketListResponse, TicketStats, TriageConfig } from "./types";
 
 export async function fetchConfig(): Promise<TriageConfig> {
   const res = await fetch("/api/config", { cache: "no-store" });
@@ -52,4 +52,30 @@ export function parseIncidents(raw: string): string[] {
   if (current.length) numbered.push(current.join("\n"));
 
   return numbered.length > 1 ? numbered : [text];
+}
+
+export async function fetchTicketStats(): Promise<TicketStats> {
+  const res = await fetch("/api/tickets/stats", { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load ticket stats");
+  return res.json();
+}
+
+export async function fetchTickets(params?: {
+  category?: string;
+  urgency?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<TicketListResponse> {
+  const search = new URLSearchParams();
+  if (params?.category) search.set("category", params.category);
+  if (params?.urgency) search.set("urgency", params.urgency);
+  if (params?.status) search.set("status", params.status);
+  if (params?.limit) search.set("limit", String(params.limit));
+  if (params?.offset) search.set("offset", String(params.offset));
+
+  const query = search.toString();
+  const res = await fetch("/api/tickets" + (query ? "?" + query : ""), { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to load tickets");
+  return res.json();
 }

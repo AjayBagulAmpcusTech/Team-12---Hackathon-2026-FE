@@ -58,3 +58,44 @@ export interface StreamState {
   error: string | null;
   progress: number;
 }
+
+export interface CategoryCount {
+  category_id: string;
+  label: string;
+  count: number;
+}
+
+export interface UrgencyCount {
+  urgency_id: string;
+  label: string;
+  count: number;
+}
+
+export interface TicketStats {
+  total: number;
+  open_count: number;
+  security_count: number;
+  by_category: CategoryCount[];
+  by_urgency: UrgencyCount[];
+}
+
+export interface Ticket {
+  id: number;
+  incident_id: string;
+  raw_text: string;
+  category_id: string;
+  urgency: string;
+  status: string;
+  security_sensitive: boolean;
+  routing_destination: string;
+  routing_destination_label: string;
+  confidence: number;
+  created_at: string;
+}
+
+export interface TicketListResponse {
+  tickets: Ticket[];
+  total: number;
+  limit: number;
+  offset: number;
+}
