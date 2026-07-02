@@ -130,10 +130,46 @@ export function ConfigAdmin() {
         </div>
       </Card>
 
+      <Card className="stagger-in stagger-4">
+        <SectionHeader title="Routing destinations" subtitle="Teams and queues incidents can be routed to." />
+        <div className="space-y-3">
+          {config.routing_destinations.map((destination, index) => (
+            <div key={destination.id} className="grid gap-2 md:grid-cols-[0.9fr_1fr_0.7fr]">
+              <input
+                className={inputClass}
+                value={destination.label}
+                onChange={(e) => {
+                  const routing_destinations = [...config.routing_destinations];
+                  routing_destinations[index] = { ...destination, label: e.target.value };
+                  setConfig({ ...config, routing_destinations });
+                }}
+              />
+              <input
+                className={inputClass}
+                value={destination.team}
+                onChange={(e) => {
+                  const routing_destinations = [...config.routing_destinations];
+                  routing_destinations[index] = { ...destination, team: e.target.value };
+                  setConfig({ ...config, routing_destinations });
+                }}
+              />
+              <span className="surface-inset self-center rounded-xl px-3 py-2 font-mono text-xs text-muted">
+                {destination.id}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       <Card className="stagger-in stagger-5">
         <SectionHeader title="Routing rules" subtitle="Evaluated in priority order; security-sensitive incidents always route to security on-call." />
         <div className="space-y-2">
-          {config.routing_rules.map((rule, index) => (
+          {config.routing_rules.map((rule, index) => {
+            const destinationLabel =
+              config.routing_destinations.find((destination) => destination.id === rule.destination_id)?.label ??
+              rule.destination_id;
+
+            return (
             <div
               key={rule.id ?? index}
               className="surface-inset grid gap-2 rounded-2xl p-3 text-sm text-secondary md:grid-cols-5"
@@ -141,10 +177,11 @@ export function ConfigAdmin() {
               <span className="font-extrabold text-primary">Priority {rule.priority}</span>
               <span className="font-mono text-muted">{rule.condition_type}</span>
               <span>{rule.condition_value || "-"}</span>
-              <span style={{ color: "var(--accent)" }}>to {rule.destination_id}</span>
+              <span style={{ color: "var(--accent)" }}>to {destinationLabel}</span>
               <span>{rule.override_urgency ? "urgency: " + rule.override_urgency : ""}</span>
             </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
     </div>

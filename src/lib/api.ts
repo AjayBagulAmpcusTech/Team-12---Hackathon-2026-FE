@@ -1,21 +1,29 @@
 import type { TriageConfig } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 export async function fetchConfig(): Promise<TriageConfig> {
-  const res = await fetch(`${API_BASE}/api/v1/config`, { cache: "no-store" });
+  const res = await fetch("/api/config", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load config");
   return res.json();
 }
 
 export async function saveConfig(config: TriageConfig): Promise<TriageConfig> {
-  const res = await fetch(`${API_BASE}/api/v1/config`, {
+  const res = await fetch("/api/config", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(config),
   });
   if (!res.ok) throw new Error("Failed to save config");
   return res.json();
+}
+
+export function getCategoryLabel(config: TriageConfig | null, typeId: string): string {
+  const match = config?.categories.find((category) => category.id === typeId);
+  return match?.label ?? typeId.replace(/_/g, " ");
+}
+
+export function getUrgencyColor(config: TriageConfig | null, urgencyId: string): string {
+  const match = config?.urgency_levels.find((level) => level.id === urgencyId);
+  return match?.color ?? "#94A3B8";
 }
 
 export function parseIncidents(raw: string): string[] {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { SAMPLE_INCIDENTS } from "@/data/sample-incidents";
+import { useTriageConfig } from "@/hooks/useTriageConfig";
 import { useTriageStream } from "@/hooks/useTriageStream";
 import { parseIncidents } from "@/lib/api";
 import { IncidentCard } from "@/components/triage/IncidentCard";
@@ -14,6 +15,7 @@ const filters: Filter[] = ["all", "security", "critical"];
 export function TriageReviewer() {
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const { config, loading: configLoading, error: configError } = useTriageConfig();
   const { results, total, securityCount, isStreaming, error, progress, startTriage, reset } =
     useTriageStream();
 
@@ -134,6 +136,12 @@ export function TriageReviewer() {
             </div>
           </div>
 
+          {configError && (
+            <div className="mt-5 rounded-2xl border p-4 text-sm" style={{ borderColor: "rgba(var(--accent-4-rgb), 0.3)", background: "rgba(var(--accent-4-rgb), 0.1)", color: "var(--accent-4)" }}>
+              Config unavailable: {configError}. Urgency colors and category labels may use defaults.
+            </div>
+          )}
+
           {error && (
             <div className="mt-5 rounded-2xl border p-4 text-sm" style={{ borderColor: "rgba(var(--accent-4-rgb), 0.3)", background: "rgba(var(--accent-4-rgb), 0.1)", color: "var(--accent-4)" }}>
               {error}
@@ -149,7 +157,7 @@ export function TriageReviewer() {
           {filteredResults.length ? (
             filteredResults.map((result, index) => (
               <div className="stagger-in" style={{ animationDelay: String(120 + index * 80) + "ms" }} key={result.incident_id}>
-                <IncidentCard result={result} />
+                <IncidentCard result={result} config={configLoading ? null : config} />
               </div>
             ))
           ) : (

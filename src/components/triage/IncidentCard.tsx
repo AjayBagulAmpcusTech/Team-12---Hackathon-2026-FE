@@ -1,15 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { TriageResult } from "@/lib/types";
+import type { TriageConfig, TriageResult } from "@/lib/types";
+import { getCategoryLabel, getUrgencyColor } from "@/lib/api";
 import { Badge, Button, Card } from "@/components/ui/primitives";
-
-const URGENCY_COLORS: Record<string, string> = {
-  critical: "#F43F5E",
-  high: "#F97316",
-  medium: "#FACC15",
-  low: "#34D399",
-};
 
 export function SecurityBanner({ result }: { result: TriageResult }) {
   if (!result.security_sensitive) return null;
@@ -28,9 +22,16 @@ export function SecurityBanner({ result }: { result: TriageResult }) {
   );
 }
 
-export function IncidentCard({ result }: { result: TriageResult }) {
+export function IncidentCard({
+  result,
+  config,
+}: {
+  result: TriageResult;
+  config: TriageConfig | null;
+}) {
   const [expanded, setExpanded] = useState(false);
-  const urgencyColor = URGENCY_COLORS[result.urgency] || "#94A3B8";
+  const urgencyColor = getUrgencyColor(config, result.urgency);
+  const categoryLabel = getCategoryLabel(config, result.type);
 
   return (
     <Card
@@ -47,7 +48,7 @@ export function IncidentCard({ result }: { result: TriageResult }) {
           <span className="surface-inset rounded-full px-2.5 py-1 font-mono text-[0.7rem] font-extrabold uppercase tracking-[0.12em] text-muted">
             {result.incident_id}
           </span>
-          <Badge color="#64748B">{result.type.replace(/_/g, " ")}</Badge>
+          <Badge color="#64748B">{categoryLabel}</Badge>
           <Badge color={urgencyColor}>{result.urgency}</Badge>
           <Badge color="#8B5CF6">{Math.round(result.confidence * 100)}% conf</Badge>
         </div>
