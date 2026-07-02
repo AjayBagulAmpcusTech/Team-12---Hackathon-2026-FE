@@ -41,7 +41,7 @@ export function TriageReviewer() {
   const progressWidth = total ? String((progress / total) * 100) + "%" : "0%";
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+    <div className="mx-auto grid max-w-[1600px] gap-6 xl:grid-cols-[0.95fr_1.05fr]">
       <section className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
           <MetricCard label="Detected" value={incidents.length} tone="accent" delay="stagger-3" />
@@ -114,7 +114,7 @@ export function TriageReviewer() {
                 )}
               </p>
             </div>
-            <div className="surface-inset flex rounded-2xl p-1">
+            <div className="surface-inset flex flex-wrap rounded-2xl p-1">
               {filters.map((f) => (
                 <button
                   key={f}
